@@ -9,7 +9,6 @@
                 clipped
                 app
         >
-            Some jumbo
             <v-list dense>
                 <v-list-tile v-for="item in menu" :key="item.text" :to="item.link">
                     <v-list-tile-action>
@@ -94,8 +93,9 @@
       drawer: null,
       showPlayer: false,
       menu: [
-        {icon: 'tv', text: 'Media', link: 'media'},
+        {icon: 'folder', text: 'Files', link: 'media'},
         {icon: 'cloud_download', text: 'Download', link: 'download'},
+        {icon: 'tv', text: 'Media Player', link: 'player'},
       ],
     }),
     props: {
