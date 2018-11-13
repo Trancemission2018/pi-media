@@ -9,7 +9,7 @@
 <script>
 import FileList from "./FileList"
 export default {
-  name: 'Home',
+  name: 'Media',
   components: {FileList},
   data () {
     return {

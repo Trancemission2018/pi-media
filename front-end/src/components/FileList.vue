@@ -1,14 +1,13 @@
 <template>
     <div>
 
-        <v-list two-line>
+        <v-list>
             <v-list-tile
-                    @click="selectFolder(parent)"
+                    @click="goBack()"
             >
 
                 <v-list-tile-content>
-                    <v-list-tile-title v-html="parent"></v-list-tile-title>
-                    <v-list-tile-sub-title></v-list-tile-sub-title>
+                    <v-list-tile-title v-html="">UP</v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
             <v-list-tile
@@ -19,28 +18,20 @@
 
                 <v-list-tile-content>
                     <v-list-tile-title v-html="folder.name"></v-list-tile-title>
-                    <v-list-tile-sub-title></v-list-tile-sub-title>
                 </v-list-tile-content>
             </v-list-tile>
         </v-list>
-        <v-list two-line>
+        <v-list>
             <v-list-tile
                     v-for="file in files"
                     :key="file.name"
-                    @click=""
+                    @click="playFile(file)"
             >
-
                 <v-list-tile-content>
                     <v-list-tile-title v-html="file.name"></v-list-tile-title>
-                    <v-list-tile-sub-title></v-list-tile-sub-title>
                 </v-list-tile-content>
             </v-list-tile>
         </v-list>
-
-
-        <pre>
-            {{ folders }}
-        </pre>
     </div>
 
 </template>
@@ -49,7 +40,7 @@
 
   import axios from 'axios'
 
-  const apiBase = 'http://localhost:9001'
+  const apiBase = 'http://192.168.0.10:9001'
 
   export default {
     name: "file-list",
@@ -58,7 +49,7 @@
     data() {
       return {
         currentPath: null,
-        parent: '',
+        pathHistory: ['/'],
         folders: [],
         files: []
       }
@@ -76,14 +67,29 @@
         }
         axios.get(`${apiBase}/files${pathLink}`).then(response => {
           console.log(response.data)
-          this.parent = response.data.parent
           this.folders = response.data.folders
           this.files = response.data.files
         })
       },
-      selectFolder(folder) {
+      selectFolder(folder, addToHistory = true) {
+        console.log('Selected folder', folder)
         this.loadPath(folder.fullPath)
+        if (addToHistory === true) {
+          this.pathHistory.push(folder.fullPath)
+        }
 
+      },
+      goBack() {
+
+        this.pathHistory.pop()
+        this.selectFolder({fullPath: this.pathHistory[this.pathHistory.length - 1]}, false)
+        console.log('Going to,', this.pathHistory[this.pathHistory.length - 1])
+      },
+      playFile(file) {
+        let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + file.name).toString('base64')
+        axios.get(`${apiBase}/play/${filePath}`).then(response => {
+          console.log(response.data)
+        })
       }
     }
   }

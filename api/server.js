@@ -5,6 +5,10 @@ const app = express()
 const port = process.env.PORT || 9001
 const fs = require('fs')
 const path = require('path')
+const axios = require('axios')
+
+const MPlayer = require('mplayer')
+const player = new MPlayer()
 
 app.use(bodyParser.json())
 app.use(cors({credentials: true, origin: 'http://localhost:8082'}))
@@ -13,54 +17,123 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 
-// var Users = require('./routes/Users');
-
-// app.use('/users',Users);
-
 app.listen(port, function () {
   console.log("Server is running on port: " + port)
 })
 
+const rootDir = '/data/media'
 
 app.get('/files', (req, res) => {
 
-  let rootDir = '/data/media'
+  let fullPath = rootDir
+
   if (req.query.folder !== undefined && req.query.folder !== '') {
-    rootDir = req.query.folder
+    if (req.query.folder !== '/') {
+      fullPath = req.query.folder
+    }
   }
 
-
-  fs.readdir(rootDir, ((err, currentFolder) => {
+  fs.readdir(fullPath, ((err, currentFolder) => {
     if (err) {
       res.status(500).json({err})
       return
     }
     let folders = []
     let files = []
-    let parent = ''
 
     currentFolder.forEach(file => {
 
-      let thisFile = `${rootDir}/${file}`
+      let thisFile = `${fullPath}/${file}`
       let pathInfo = path.parse(thisFile)
-      var isDirectory = fs.statSync(thisFile).isDirectory()
-      parent = {name: 'Up', fullPath: getParent(rootDir)}
+      let isDirectory = fs.statSync(thisFile).isDirectory()
       if (isDirectory) {
         folders.push({name: file, fullPath: thisFile, pathInfo})
       } else {
-        files.push({name: file})
+
+        switch (pathInfo.ext) {
+          case '.mp4':
+          case '.mp3':
+          case '.mkv':
+          case '.avi':
+          case '.mpg':
+            files.push({name: file})
+            break
+        }
       }
     })
-    res.json({parent, folders, files})
+    res.json({folders, files})
   }))
+})
 
+
+app.get('/play/:filePath', (req, res) => {
+  let decodedPath = Buffer.from(req.params.filePath, 'base64').toString('ascii')
+  player.openFile(decodedPath)
+  res.json({playing: true})
+})
+
+app.get('/pause', (req, res) => {
+  player.pause()
+  res.json({playing: false})
+})
+
+app.get('/resume', (req, res) => {
+  player.play()
+  res.json({playing: true})
+})
+
+
+app.get('/downloads/search', (req, res) => {
+
+  axios.get('https://pirateproxy.live/search/paddington/1/99/0').then(response => {
+
+
+    let html = response.data.replace(/(\r\n\t|\n|\r\t|\r)/gm, "")
+
+    let rows = html.match(/<tr>(.*?)<\/tr>/g)
+
+    let allLinks = []
+    let allTitles = []
+    let allMagnets = []
+
+    let results = []
+    console.log('We have', rows.length)
+    let done = 0
+    rows.forEach(row => {
+      if (done < 15) {
+
+        let links = row.match(/<a.*?>(.*?)<\/a>/g)
+        let titleA = links[2]
+        let torrentA = links[3]
+
+        let titleMatch = titleA.match(/>(.*?)</)
+        let magnetMatch = torrentA.match(/(magnet:.*?)"/)
+
+        console.log('The title is ', titleMatch[1])
+        console.log('The link is ', magnetMatch[1])
+
+        allTitles.push(titleMatch)
+        allMagnets.push(magnetMatch)
+
+        allLinks.push(links)
+
+        results.push({
+          name: titleMatch[1],
+          link: magnetMatch[1]
+        })
+        done++
+      }
+    })
+
+    res.json({results})
+  })
 
 })
 
-function getParent(fullPath)
-{
-  var the_arr = fullPath.split('/');
-  the_arr.pop();
-  return( the_arr.join('/') );
+
+function getParent(fullPath) {
+  var the_arr = fullPath.split('/')
+  the_arr.pop()
+  return (the_arr.join('/'))
 }
 
