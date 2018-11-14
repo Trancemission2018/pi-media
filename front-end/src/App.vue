@@ -42,9 +42,9 @@
         <v-content>
             <router-view>
             </router-view>
-            <v-btn @click="showPlayer = !showPlayer">Player</v-btn>
+            <!-- <v-btn @click="showPlayer = !showPlayer">Player</v-btn> -->
         </v-content>
-        <v-bottom-sheet inset hide-overlay :value="showPlayer">
+        <v-bottom-sheet inset hide-overlay :value="$store.state.mplayer.status === 'playing'">
 
             <v-card tile>
                 <v-progress-linear
@@ -128,9 +128,10 @@
       showPlayer: false,
       menu: [
 
-        {icon: 'folder', text: 'Files', link: 'media'},
-        {icon: 'cloud_download', text: 'Download', link: 'download'},
-        {icon: 'tv', text: 'Media Player', link: 'player'},
+        {icon: 'folder', text: 'Files', link: '/media'},
+        {icon: 'search', text: 'Search Torrents', link: '/download'},
+        {icon: 'cloud_download', text: 'Download YouTube', link: '/youtube'},
+        {icon: 'tv', text: 'Media Player', link: '/player'},
 
       ],
     }),

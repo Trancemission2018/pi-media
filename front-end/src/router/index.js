@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 
 import Download from '../components/Download'
+import DownloadYouTube from '../components/DownloadYouTube'
 import Downloads from '../components/Downloads'
 
 import Media from '../components/Media'
@@ -21,8 +22,14 @@ export default new Router({
     {
 
       path: '/download',
-      name: 'Download',
+      name: 'Download Torrents',
       component: Download
+    },
+          {
+
+      path: '/youtube',
+      name: 'Download YouTube',
+      component: DownloadYouTube
     },
     {
       path: '/downloads',

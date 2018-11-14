@@ -83,10 +83,11 @@ app.get('/resume', (req, res) => {
 })
 
 
-app.get('/downloads/search', (req, res) => {
+app.post('/downloads/search', (req, res) => {
 
-  axios.get('https://pirateproxy.live/search/paddington/1/99/0').then(response => {
+  let query = req.body.query
 
+  axios.get(`https://pirateproxy.live/search/${query}/1/99/0`).then(response => {
 
     let html = response.data.replace(/(\r\n\t|\n|\r\t|\r)/gm, "")
 

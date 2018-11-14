@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <v-container>
 
         <v-list>
             <v-list-tile
@@ -25,8 +25,7 @@
                     <v-list-tile-title v-html="folder.name"></v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
-        </v-list>
-        <v-list>
+
             <v-list-tile
                     v-for="file in files"
                     :key="file.name"
@@ -42,7 +41,7 @@
                 </v-list-tile-content>
             </v-list-tile>
         </v-list>
-    </div>
+    </v-container>
 
 </template>
 
