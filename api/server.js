@@ -11,7 +11,7 @@ const MPlayer = require('mplayer')
 const player = new MPlayer()
 
 app.use(bodyParser.json())
-app.use(cors({credentials: true, origin: 'http://localhost:8082'}))
+app.use(cors({credentials: true, origin: '*'}))
 app.use(cors())
 app.use(bodyParser.urlencoded({
   extended: false
