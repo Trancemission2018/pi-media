@@ -10,6 +10,16 @@ const axios = require('axios')
 const MPlayer = require('mplayer')
 const player = new MPlayer()
 
+var Transmission = require('transmission')
+var transmission = new Transmission({
+  port: 9091,			// DEFAULT : 9091
+  //host: '192.168.1.34',			// DEAFULT : 127.0.0.1
+  username: 'marcus',	// DEFAULT : BLANK
+  password: 'password'	// DEFAULT : BLANK
+})
+
+
+
 app.use(bodyParser.json())
 app.use(cors({credentials: true, origin: '*'}))
 app.use(cors())
@@ -93,9 +103,11 @@ app.post('/downloads/search', (req, res) => {
 
     let rows = html.match(/<tr>(.*?)<\/tr>/g)
 
-    let allLinks = []
-    let allTitles = []
-    let allMagnets = []
+    if (!rows) {
+      res.json({totalResults :0})
+      next()
+    }
+
 
     let results = []
     console.log('We have', rows.length)
@@ -107,20 +119,22 @@ app.post('/downloads/search', (req, res) => {
         let titleA = links[2]
         let torrentA = links[3]
 
-        let titleMatch = titleA.match(/>(.*?)</)
-        let magnetMatch = torrentA.match(/(magnet:.*?)"/)
+        let name = titleA.match(/>(.*?)</)[1]
+        let magnet = torrentA.match(/(magnet:.*?)"/)[1]
 
-        console.log('The title is ', titleMatch[1])
-        console.log('The link is ', magnetMatch[1])
+        let peersMatch = row.match(/<td align="right">(.*?)</g)
+        let seeds = peersMatch[0].match(/>(.*?)</)[1]
+        let leechers = peersMatch[1].match(/>(.*?)</)[1]
 
-        allTitles.push(titleMatch)
-        allMagnets.push(magnetMatch)
-
-        allLinks.push(links)
+        let meta = row.match(/<font class="detDesc">(.*?), ULed/)[1]
 
         results.push({
-          name: titleMatch[1],
-          link: magnetMatch[1]
+          totalResults: 1,
+          name,
+          meta,
+          seeds,
+          leechers,
+          magnet
         })
         done++
       }
@@ -164,3 +178,87 @@ app.get('/player', function(req, res) {
     fs.createReadStream(path).pipe(res)
   }
 })
+
+app.post('/downloads/download', (req, res) => {
+
+  let magnetLink = req.body.link
+
+  transmission.addUrl(magnetLink, {
+    "download-dir": "/data/media/movies"
+  }, function (err, result) {
+    if (err) {
+      res.status(503).json(err)
+      return
+    }
+    res.json({
+      added: true, id: result.id
+    })
+  })
+})
+
+app.get('/downloads/session', (req, res) => {
+
+  transmission.sessionStats(function (err, result) {
+    if (err) {
+      res.status(503).json(err)
+      console.log(err)
+    } else {
+      res.json(result)
+    }
+  })
+})
+
+app.get('/downloads/status', (req, res) => {
+
+  transmission.active(function (err, result) {
+    if (err) {
+      res.status(503).json(err)
+      console.log(err)
+    }
+    else {
+      res.json(result)
+    }
+  })
+})
+
+app.get('/downloads/active', (req, res) => {
+  transmission.active(function (err, result) {
+    if (err) {
+      res.status(503).json(err)
+      console.log(err)
+    }
+    else {
+      res.json(result)
+    }
+  })
+})
+
+app.post('/downloads/torrent', (req, res) => {
+  let id = req.body.id
+  transmission.get(id, function (err, result) {
+    if (err) {
+      res.status(503).json(err)
+      console.log(err)
+    }
+    else {
+      res.json(result)
+    }
+  })
+})
+
+app.post('/downloads/youtube', (req, res) => {
+
+  console.log('Youtube download', req.body)
+  let url = req.body.url
+
+  const {execFile} = require('child_process')
+  const child = execFile('youtube-dl', [url, '-o', '/data/media/music/%(title)s.%(ext)s'], (error, stdout, stderr) => {
+    if (error) {
+      console.log(error)
+    }
+  })
+  res.json({downloading: true})
+
+
+})
+

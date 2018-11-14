@@ -27,7 +27,9 @@
         <div v-else>
 
             <v-list v-for="(result, id) in searchResults"
-                    :key="id">
+                    :key="id"
+                    two-line
+            >
                 <v-list-tile
                         @click="download(result)"
 
@@ -35,11 +37,12 @@
 
                     <v-list-tile-content>
                         <v-list-tile-title v-html="">{{result.name}}</v-list-tile-title>
+                        <v-list-tile-sub-title
+                                v-html="`${result.meta}<br />${result.seeds} / ${result.leechers}`"></v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
         </div>
-
 
 
         <v-snackbar
@@ -83,13 +86,25 @@
     },
     methods: {
       search() {
-        this.searching = true
-        piApi.post('/downloads/search', {query: this.query}).then(response => {
-          console.log('Search results', response.data)
-          this.searchResults = response.data.results
-        }).catch(error => {
-          console.error(error)
-        }).finally(() => this.searching = false)
+        if (this.query === '') {
+          alert('Please enter a search term')
+
+        } else {
+          this.searching = true
+          piApi.post('/downloads/search', {query: this.query}).then(response => {
+            console.log('Search results', response.data)
+            this.searchResults = response.data.results
+            if (this.searchResults === 0) {
+
+
+
+            }else{
+
+            }
+          }).catch(error => {
+            console.error(error)
+          }).finally(() => this.searching = false)
+        }
       },
       download(result) {
         piApi.post('/downloads/download', result).then(response => {

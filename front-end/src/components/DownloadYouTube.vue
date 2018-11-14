@@ -3,7 +3,6 @@
     <v-container>
 
 
-
         <v-layout row wrap text-xs-center align-center>
             <v-flex xs8>
 
@@ -60,16 +59,19 @@
     },
     methods: {
       downloadYouTube() {
-        piApi.post('/downloads/youtube', {url: this.youtubeURL}).then(response => {
-          this.status = 'Download added...'
-          this.showStatus = true
-          console.log('Download response:', response)
-        }).catch(error => {
-          this.status = 'Error adding download - Try restarting the Pi'
-          this.showStatus = true
-          console.error(error)
-        })
-
+        if (this.youtubeURL === '') {
+          alert('Please enter a URL or ID')
+        } else {
+          piApi.post('/downloads/youtube', {url: this.youtubeURL}).then(response => {
+            this.status = 'Download added...'
+            this.showStatus = true
+            console.log('Download response:', response)
+          }).catch(error => {
+            this.status = 'Error adding download - Try restarting the Pi'
+            this.showStatus = true
+            console.error(error)
+          })
+        }
       }
     }
   }
