@@ -181,7 +181,7 @@ app.get('/player', function(req, res) {
 
 app.post('/downloads/download', (req, res) => {
 
-  let magnetLink = req.body.link
+  let magnetLink = req.body.magnet
 
   transmission.addUrl(magnetLink, {
     "download-dir": "/data/media/movies"
@@ -258,7 +258,15 @@ app.post('/downloads/youtube', (req, res) => {
     }
   })
   res.json({downloading: true})
+})
 
-
+app.post('/folder/create', (req, res) => {
+  let dir = req.body.folder
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+    res.json({created: true})
+  }else{
+    res.status(403).json({created: false, error: 'folder exists'})
+  }
 })
 

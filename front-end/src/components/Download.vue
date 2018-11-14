@@ -2,7 +2,8 @@
 
     <v-container>
 
-        <v-layout row wrap text-xs-center align-center>
+        <v-layout v-if="!preparingDownload"
+                row wrap text-xs-center align-center>
             <v-flex xs8>
 
                 <v-text-field
@@ -24,6 +25,13 @@
                     color="purple"
             ></v-progress-circular>
         </div>
+        <div v-else-if="preparingDownload">
+            <folder-select
+                    :torrent="this.currentTorrent"
+                    @startDownload="download()"
+                    @cancel="preparingDownload = false"
+            ></folder-select>
+        </div>
         <div v-else>
 
             <v-list v-for="(result, id) in searchResults"
@@ -31,7 +39,7 @@
                     two-line
             >
                 <v-list-tile
-                        @click="download(result)"
+                        @click="prepareDownload(result)"
 
                 >
 
@@ -60,6 +68,7 @@
 <script>
 
   import axios from 'axios'
+  import FolderSelect from "./FolderSelect"
 
   // const apiBase = 'http://192.168.0.10:9001'
   const apiBase = 'http://10.0.0.165:9001'
@@ -70,15 +79,17 @@
 
   export default {
     name: "download",
-    components: {},
+    components: {FolderSelect},
     props: [],
     data() {
       return {
+        preparingDownload: false,
         query: '',
         searchResults: [],
         status: '',
         showStatus: false,
-        searching: false
+        searching: false,
+        currentTorrent: null
       }
     },
     created() {
@@ -92,13 +103,11 @@
         } else {
           this.searching = true
           piApi.post('/downloads/search', {query: this.query}).then(response => {
-            console.log('Search results', response.data)
             this.searchResults = response.data.results
             if (this.searchResults === 0) {
 
 
-
-            }else{
+            } else {
 
             }
           }).catch(error => {
@@ -106,11 +115,15 @@
           }).finally(() => this.searching = false)
         }
       },
-      download(result) {
-        piApi.post('/downloads/download', result).then(response => {
+
+      prepareDownload(result) {
+        this.preparingDownload = true
+        this.currentTorrent = result
+      },
+      download(folder) {
+        piApi.post('/downloads/download', this.currentTorrent).then(response => {
           this.status = 'Download added...'
           this.showStatus = true
-          console.log('Download response:', response)
         }).catch(error => {
           this.status = 'Error adding download - Try restarting the Pi'
           this.showStatus = true
