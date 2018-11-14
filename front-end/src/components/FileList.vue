@@ -3,7 +3,7 @@
 
         <v-list>
             <v-list-tile
-                    @click="goBack()"
+                    @click="goBack"
             >
 
                 <v-list-tile-content>
@@ -14,7 +14,12 @@
                     v-for="folder in folders"
                     :key="folder.name"
                     @click="selectFolder(folder)"
+                    avatar
             >
+
+                <v-list-tile-avatar>
+                    <v-icon>folder</v-icon>
+                </v-list-tile-avatar>
 
                 <v-list-tile-content>
                     <v-list-tile-title v-html="folder.name"></v-list-tile-title>
@@ -26,7 +31,12 @@
                     v-for="file in files"
                     :key="file.name"
                     @click="playFile(file)"
+                    avatar
             >
+
+                <v-list-tile-avatar>
+                    <v-icon>play_arrow</v-icon>
+                </v-list-tile-avatar>
                 <v-list-tile-content>
                     <v-list-tile-title v-html="file.name"></v-list-tile-title>
                 </v-list-tile-content>
@@ -40,7 +50,12 @@
 
   import axios from 'axios'
 
-  const apiBase = 'http://192.168.0.10:9001'
+  // const apiBase = 'http://192.168.0.10:9001'
+  const apiBase = 'http://10.0.0.165:9001'
+
+  const piApi = axios.create({
+    baseURL: apiBase
+  });
 
   export default {
     name: "file-list",
@@ -65,7 +80,7 @@
         if (folder) {
           pathLink = `?folder=${folder}`
         }
-        axios.get(`${apiBase}/files${pathLink}`).then(response => {
+        piApi.get(`/files${pathLink}`).then(response => {
           console.log(response.data)
           this.folders = response.data.folders
           this.files = response.data.files
@@ -87,10 +102,15 @@
       },
       playFile(file) {
         let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + file.name).toString('base64')
-        axios.get(`${apiBase}/play/${filePath}`).then(response => {
+        if (this.pathHistory.length === 1) {
+          filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + file.name).toString('base64')
+        }
+        piApi.get(`/play/${filePath}`).then(response => {
+          this.$store.dispatch('setPlaying')
           console.log(response.data)
         })
-      }
+      },
+
     }
   }
 </script>
