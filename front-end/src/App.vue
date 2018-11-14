@@ -2,6 +2,7 @@
     <v-app
             id="app"
             dark
+            @click="showPlayer = false"
     >
         <v-navigation-drawer
                 v-model="drawer"
@@ -9,8 +10,7 @@
                 clipped
                 app
         >
-            Some jumbo
-            <v-list dense>
+            <v-list dense class="mt-4">
                 <v-list-tile v-for="item in menu" :key="item.text" :to="item.link">
                     <v-list-tile-action>
                         <v-icon>{{ item.icon }}</v-icon>
@@ -24,7 +24,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-toolbar
-                color="red"
+                color="#37474F"
                 dense
                 fixed
                 clipped-left
@@ -38,11 +38,11 @@
             <v-spacer></v-spacer>
         </v-toolbar>
         <v-content>
-                <router-view>
-                </router-view>
-            <v-btn @click="showPlayer = true">Player</v-btn>
+            <router-view>
+            </router-view>
+            <v-btn @click="showPlayer = !showPlayer">Player</v-btn>
         </v-content>
-        <v-bottom-sheet inset :value="showPlayer">
+        <v-bottom-sheet inset hide-overlay :value="showPlayer">
 
             <v-card tile>
                 <v-progress-linear
@@ -60,25 +60,51 @@
 
                         <v-spacer></v-spacer>
 
+                        <!--
                         <v-list-tile-action>
                             <v-btn icon>
                                 <v-icon>fast_rewind</v-icon>
                             </v-btn>
                         </v-list-tile-action>
+                        -->
 
-                        <v-list-tile-action :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
-                                            @click="pause"
+
+                        <v-list-tile-action
+                                v-if="$store.state.mplayer.status==='playing'"
+                                :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
+                                @click="pause"
                         >
                             <v-btn icon>
                                 <v-icon>pause</v-icon>
                             </v-btn>
                         </v-list-tile-action>
 
+                        <v-list-tile-action
+                                v-else-if="$store.state.mplayer.status==='paused'"
+                                :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
+                                @click="play"
+                        >
+                            <v-btn icon>
+                                <v-icon>play_arrow</v-icon>
+                            </v-btn>
+                        </v-list-tile-action>
+
+                        <v-list-tile-action
+                                v-else
+                                :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
+                                @click="stop"
+                        >
+                            <v-btn icon>
+                                <v-icon>stop</v-icon>
+                            </v-btn>
+                        </v-list-tile-action>
+                        <!--
                         <v-list-tile-action :class="{ 'mr-3': $vuetify.breakpoint.mdAndUp }">
                             <v-btn icon>
                                 <v-icon>fast_forward</v-icon>
                             </v-btn>
                         </v-list-tile-action>
+                        -->
                     </v-list-tile>
                 </v-list>
             </v-card>
@@ -87,7 +113,13 @@
 </template>
 
 <script>
-    import axios from 'axios'
+  import axios from 'axios'
+  // const apiBase = 'http://192.168.0.10:9001'
+  const apiBase = 'http://localhost:9001'
+
+  const piApi = axios.create({
+    baseURL: apiBase
+  })
   export default {
     name: 'App',
     data: () => ({
@@ -95,7 +127,8 @@
       showPlayer: false,
       menu: [
         {icon: 'tv', text: 'Media', link: 'media'},
-        {icon: 'cloud_download', text: 'Download', link: 'download'},
+        {icon: 'search', text: 'Add Download', link: 'download'},
+        {icon: 'cloud_download', text: 'Manage Downloads', link: 'downloads'},
       ],
     }),
     props: {
@@ -103,8 +136,22 @@
     },
     methods: {
       pause() {
-        axios.pause()
-
+        piApi.get(`/pause`).then(response => {
+          this.$store.dispatch('setPaused')
+          console.log(response.data)
+        })
+      },
+      play() {
+        piApi.get(`/resume`).then(response => {
+          this.$store.dispatch('setPlaying')
+          console.log(response.data)
+        })
+      },
+      stop() {
+        piApi.get(`/stop`).then(response => {
+          this.$store.dispatch('setStopped')
+          console.log(response.data)
+        })
       }
     }
   }
