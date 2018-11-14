@@ -1,31 +1,40 @@
 <template>
     <v-container>
-
         <v-list>
             <v-list-tile
                     @click="goBack"
             >
 
                 <v-list-tile-content>
-                    <v-list-tile-title v-html="">UP</v-list-tile-title>
+                    <v-list-tile-title v-html="">
+                        <v-icon>arrow_back</v-icon>
+                    </v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile
-                    v-for="folder in folders"
-                    :key="folder.name"
-                    @click="selectFolder(folder)"
-                    avatar
-            >
+        </v-list>
 
-                <v-list-tile-avatar>
-                    <v-icon>folder</v-icon>
-                </v-list-tile-avatar>
+        <div class="scrollList" style="height: 250px;">
+            <v-list>
 
-                <v-list-tile-content>
-                    <v-list-tile-title v-html="folder.name"></v-list-tile-title>
-                </v-list-tile-content>
-            </v-list-tile>
+                <v-list-tile
+                        v-for="folder in folders"
+                        :key="folder.name"
+                        @click="selectFolder(folder)"
+                        avatar
+                >
 
+                    <v-list-tile-avatar>
+                        <v-icon>folder</v-icon>
+                    </v-list-tile-avatar>
+
+                    <v-list-tile-content>
+                        <v-list-tile-title v-html="folder.name"></v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-list>
+        </div>
+
+        <v-list v-if="files.length > 0">
             <v-list-tile
                     v-for="file in files"
                     :key="file.name"
@@ -54,7 +63,7 @@
 
   const piApi = axios.create({
     baseURL: apiBase
-  });
+  })
 
   export default {
     name: "file-list",
@@ -115,5 +124,10 @@
 </script>
 
 <style scoped>
+
+    .scrollList {
+        display: block;
+        overflow: scroll;
+    }
 
 </style>
