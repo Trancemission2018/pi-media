@@ -13,7 +13,7 @@
             </v-list-tile>
         </v-list>
 
-        <div class="scrollList" style="height: 250px;">
+        <div class="scrollList" style="max-height: 250px;">
             <v-list>
 
                 <v-list-tile
