@@ -8,14 +8,14 @@
                 <v-flex xs8>
 
                     <v-text-field
-                            label="YouTube Download"
-                            placeholder="https://www.youtube.com/watch?v=RY_2gElt3SA"
+                            label="Download Web Link"
+                            placeholder="Youtube, Soundcloud, IPlayer"
                             v-model="youtubeURL"
                     ></v-text-field>
                 </v-flex>
                 <v-flex xs4>
 
-                    <v-btn @click="downloadYouTube">Download</v-btn>
+                    <v-btn @click="downloadYouTube" small>Download</v-btn>
 
                 </v-flex>
             </v-layout>
@@ -75,7 +75,7 @@
     props: [],
     data() {
       return {
-        youtubeURL: 'https://www.youtube.com/watch?v=k0kswK2aI08',
+        youtubeURL: '',
         title: '',
         status: '',
         showStatus: false,
