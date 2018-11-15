@@ -1,46 +1,51 @@
 <template>
     <div>
 
-        <v-layout row wrap align-center class="mb-2">
-            <v-flex xs6>
-                {{ cleanName }}
-            </v-flex>
-            <v-flex xs3>
-                <v-btn small color="grey" @click="$emit('cancel')">Cancel</v-btn>
-            </v-flex>
-            <v-flex xs3>
-                <v-btn small color="teal" @click="$emit('startDownload', currentPath)">Download</v-btn>
-            </v-flex>
-        </v-layout>
+        <div>
+            {{ cleanName }}
+        </div>
 
         <v-layout row align-center class="mb-2">
-            <v-flex xs4  @click="goBack()">
+            <v-flex xs1 @click="goBack()">
                 <v-icon v-if="pathHistory.length !== 1">arrow_back</v-icon>
             </v-flex>
-            <v-flex xs4>
+            <v-flex xs7>
+                {{ currentFolder }}
             </v-flex>
             <v-flex xs4 text-xs-right>
-                <v-btn small @click="newFolder" >New Folder</v-btn>
+                <v-btn small @click="newFolder">New Folder</v-btn>
             </v-flex>
         </v-layout>
-        <v-list>
-            <v-list-tile
-                    v-for="folder in folders"
-                    :key="folder.name"
-                    @click="selectFolder(folder)"
-                    avatar
-            >
 
-                <v-list-tile-avatar>
-                    <v-icon >folder</v-icon>
-                </v-list-tile-avatar>
+        <div class="folderList" style="max-height: 250px;">
+            <v-list>
+                <v-list-tile
+                        v-for="folder in folders"
+                        :key="folder.name"
+                        @click="selectFolder(folder)"
+                        avatar
+                >
 
-                <v-list-tile-content>
-                    <v-list-tile-title v-html="folder.name"></v-list-tile-title>
-                </v-list-tile-content>
-            </v-list-tile>
+                    <v-list-tile-avatar>
+                        <v-icon>folder</v-icon>
+                    </v-list-tile-avatar>
 
-        </v-list>
+                    <v-list-tile-content>
+                        <v-list-tile-title v-html="folder.name"></v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+
+            </v-list>
+        </div>
+        <v-layout row wrap align-center text-xs-center class="pt-2">
+            <v-flex xs6 class="pa-2">
+                <v-btn small color="grey" block @click="$emit('cancel')">Cancel</v-btn>
+            </v-flex>
+            <v-flex xs6 class="pa-2">
+                <v-btn small color="teal" block @click="$emit('startDownload', currentPath)">Download</v-btn>
+            </v-flex>
+
+        </v-layout>
     </div>
 
 </template>
@@ -75,6 +80,16 @@
       },
       cleanName() {
         return this.torrent.name.replace(/\./g, ' ')
+      },
+      currentFolder() {
+
+        if (this.pathHistory.length === 1) {
+          return 'Select Folder'
+        } else {
+          let parts = this.currentPath.split('/')
+          return parts[parts.length - 1]
+        }
+
       }
     },
     created() {
@@ -113,26 +128,37 @@
         console.log('CurrentPath', this.currentPath)
 
         let folderName = prompt('Folder name')
-        let fullName
-        if (this.currentPath !== undefined) {
-          fullName = `${this.currentPath}/${folderName}`
-        }else{
-          fullName = folderName
-        }
-        console.log('Saving ful', fullName)
-        piApi.post('/folder/create', {folder: fullName}).then(response => {
-          console.log('Selecting folder', fullName)
-          this.loadPath(fullName)
+        if (folderName) {
 
-        }).catch(error => {
-          alert('Unable to create folder')
-          console.log(error)
-        })
+          let fullName
+          if (this.currentPath !== undefined) {
+            fullName = `${this.currentPath}/${folderName}`
+          } else {
+            fullName = folderName
+          }
+          console.log('Saving ful', fullName)
+          piApi.post('/folder/create', {folder: fullName}).then(response => {
+            console.log('Selecting folder', fullName)
+            this.loadPath(fullName)
+            this.currentPath = fullName
+            this.pathHistory.push(fullName)
+
+
+          }).catch(error => {
+            alert('Unable to create folder')
+            console.log(error)
+          })
+        }
       }
     }
   }
 </script>
 
 <style scoped>
+
+    .folderList {
+        display: block;
+        overflow: scroll;
+    }
 
 </style>
