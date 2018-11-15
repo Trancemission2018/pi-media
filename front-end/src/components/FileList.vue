@@ -38,7 +38,8 @@
             <v-list-tile
                     v-for="file in files"
                     :key="file.name"
-                    @click="playFile(file)"
+                    @iclick="playFile(file)"
+                    @click="selectFile(file)"
                     avatar
             >
 
@@ -50,6 +51,36 @@
                 </v-list-tile-content>
             </v-list-tile>
         </v-list>
+
+        <v-dialog
+                v-model="selectDestination"
+                max-width="290"
+                light
+        >
+            <div
+                    color="white"
+            >
+
+                <v-layout row align-center text-xs-center
+
+                          class="pa-3"
+                >
+                    <v-flex xs6>
+                        <v-btn>
+                            <v-icon class="mr-2">tv</v-icon>
+                            Pi
+                        </v-btn>
+                    </v-flex>
+                    <v-flex xs6>
+                        <v-btn>
+                            <v-icon>smartphone</v-icon>
+                            Device
+                        </v-btn>
+                    </v-flex>
+                </v-layout>
+            </div>
+        </v-dialog>
+
     </v-container>
 
 </template>
@@ -74,7 +105,8 @@
         currentPath: null,
         pathHistory: ['/'],
         folders: [],
-        files: []
+        files: [],
+        selectDestination: false
       }
     },
     created() {
@@ -118,6 +150,9 @@
           console.log(response.data)
         })
       },
+      selectFile() {
+        this.selectDestination = true
+      }
 
     }
   }

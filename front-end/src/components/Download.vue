@@ -3,7 +3,7 @@
     <v-container>
 
         <v-layout v-if="!preparingDownload"
-                row wrap text-xs-center align-center>
+                  row wrap text-xs-center align-center>
             <v-flex xs8>
 
                 <v-text-field
@@ -19,18 +19,27 @@
             </v-flex>
         </v-layout>
 
-        <div v-if="searching">
-            <v-progress-circular
-                    indeterminate
-                    color="purple"
-            ></v-progress-circular>
+        <div v-if="searching" text-xs-center>
+            <v-layout row align-centre text-xs-center>
+                <v-flex xs12>
+                    <div> Searching...</div>
+
+                    <v-progress-circular
+                            indeterminate
+                            color="purple"
+                    ></v-progress-circular>
+                </v-flex>
+            </v-layout>
         </div>
         <div v-else-if="preparingDownload">
             <folder-select
                     :torrent="this.currentTorrent"
-                    @startDownload="download()"
+                    @startDownload="download"
                     @cancel="preparingDownload = false"
             ></folder-select>
+        </div>
+        <div v-else-if="noResults">
+            Tumbleweed
         </div>
         <div v-else>
 
@@ -57,6 +66,7 @@
                 v-model="showStatus"
                 bottom
                 :timeout="5000"
+                :color="statusColour"
         >
             {{ status }}
         </v-snackbar>
@@ -89,7 +99,9 @@
         status: '',
         showStatus: false,
         searching: false,
-        currentTorrent: null
+        currentTorrent: null,
+        statusColour: '',
+        noResults: false
       }
     },
     created() {
@@ -101,14 +113,15 @@
           alert('Please enter a search term')
 
         } else {
+          this.noResults = false
           this.searching = true
           piApi.post('/downloads/search', {query: this.query}).then(response => {
+            console.log('Here are the results', response.data)
             this.searchResults = response.data.results
             if (this.searchResults === 0) {
-
-
+              this.noResults = true
             } else {
-
+              this.noResults = false
             }
           }).catch(error => {
             console.error(error)
@@ -121,10 +134,14 @@
         this.currentTorrent = result
       },
       download(folder) {
-        piApi.post('/downloads/download', this.currentTorrent).then(response => {
+        console.log('Download to folder', folder)
+        this.statusColour = 'green'
+        piApi.post('/downloads/download', {...this.currentTorrent, folder: folder}).then(response => {
           this.status = 'Download added...'
           this.showStatus = true
+          this.preparingDownload = false
         }).catch(error => {
+          this.statusColour = 'red'
           this.status = 'Error adding download - Try restarting the Pi'
           this.showStatus = true
           console.error(error)

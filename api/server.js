@@ -43,6 +43,8 @@ app.get('/files', (req, res) => {
     }
   }
 
+  console.log('Looking for', fullPath)
+
   fs.readdir(fullPath, ((err, currentFolder) => {
     if (err) {
       res.status(500).json({err})
@@ -110,7 +112,6 @@ app.post('/downloads/search', (req, res) => {
 
 
     let results = []
-    console.log('We have', rows.length)
     let done = 0
     rows.forEach(row => {
       if (done < 15) {
@@ -181,10 +182,13 @@ app.get('/player', function(req, res) {
 
 app.post('/downloads/download', (req, res) => {
 
+  console.log('Start download', req.body)
+
   let magnetLink = req.body.magnet
+  let downloadDir = req.body.folder
 
   transmission.addUrl(magnetLink, {
-    "download-dir": "/data/media/movies"
+    "download-dir": downloadDir
   }, function (err, result) {
     if (err) {
       res.status(503).json(err)
@@ -246,13 +250,28 @@ app.post('/downloads/torrent', (req, res) => {
   })
 })
 
-app.post('/downloads/youtube', (req, res) => {
+app.post('/downloads/youtube/title', (req, res) => {
 
-  console.log('Youtube download', req.body)
   let url = req.body.url
 
   const {execFile} = require('child_process')
-  const child = execFile('youtube-dl', [url, '-o', '/data/media/music/%(title)s.%(ext)s'], (error, stdout, stderr) => {
+  const child = execFile('youtube-dl', [url, '-e'], (error, stdout, stderr) => {
+    if (error) {
+      res.status(503).json({error})
+      console.log(error)
+    }else{
+      res.json({title: stdout})
+    }
+  })
+})
+
+app.post('/downloads/youtube', (req, res) => {
+
+  let url = req.body.url
+  let folder = req.body.folder
+
+  const {execFile} = require('child_process')
+  const child = execFile('youtube-dl', [url, '-o', `${folder}/%(title)s.%(ext)s`], (error, stdout, stderr) => {
     if (error) {
       console.log(error)
     }
@@ -262,6 +281,11 @@ app.post('/downloads/youtube', (req, res) => {
 
 app.post('/folder/create', (req, res) => {
   let dir = req.body.folder
+  if (!dir.match(/\/data\/media/)) {
+    let newDir = dir.replace(/\/\//g, '/data/media/')
+    console.log('Creating folder, need to add root', newDir)
+    dir = newDir
+  }
   if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
     res.json({created: true})

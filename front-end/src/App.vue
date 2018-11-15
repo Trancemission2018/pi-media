@@ -129,7 +129,7 @@
       menu: [
         {icon: 'folder', text: 'Files', link: '/media'},
         {icon: 'search', text: 'Search Torrents', link: '/download'},
-        {icon: 'cloud_download', text: 'Download YouTube', link: '/youtube'},
+        {icon: 'cloud_download', text: 'Download WebLink', link: '/youtube'},
         {icon: 'list', text: 'View Downloads', link: '/downloads'},
         {icon: 'tv', text: 'Media Player', link: '/player'},
       ],

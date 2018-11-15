@@ -1,9 +1,7 @@
 <template>
     <div>
+        <div>{{ title }}</div>
 
-        <div>
-            {{ cleanName }}
-        </div>
 
         <v-layout row align-center class="mb-2">
             <v-flex xs1 @click="goBack()">
@@ -42,7 +40,7 @@
                 <v-btn small color="grey" block @click="$emit('cancel')">Cancel</v-btn>
             </v-flex>
             <v-flex xs6 class="pa-2">
-                <v-btn small color="teal" block @click="$emit('startDownload', currentPath)">Download</v-btn>
+                <v-btn small color="teal" block @click="sendDownload">Download</v-btn>
             </v-flex>
 
         </v-layout>
@@ -62,9 +60,9 @@
   })
 
   export default {
-    name: "folder-select",
+    name: "folder-select-youtube",
     components: {},
-    props: ['path', 'torrent'],
+    props: ['path', 'title'],
     data() {
       return {
         currentPath: '/',
@@ -100,14 +98,16 @@
 
     methods: {
       loadPath(folder) {
+        console.log('Loading folder', folder)
         let pathLink = ''
         if (folder) {
           pathLink = `?folder=${folder}`
         }
         piApi.get(`/files${pathLink}`).then(response => {
+          console.log('Done', response)
           this.folders = response.data.folders
           this.files = response.data.files
-        })
+        }).catch(error => console.error(error))
       },
       selectFolder(folder, addToHistory = true) {
         console.log('Selected folder', folder)
@@ -117,6 +117,10 @@
           this.currentPath = folder.fullPath
         }
 
+      },
+      sendDownload() {
+        console.log('Sending download', this.currentPath)
+        this.$emit('startDownload', this.currentPath)
       },
       goBack() {
         this.pathHistory.pop()
