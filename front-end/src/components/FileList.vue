@@ -38,7 +38,6 @@
             <v-list-tile
                     v-for="file in files"
                     :key="file.name"
-                    @iclick="playFile(file)"
                     @click="selectFile(file)"
                     avatar
             >
@@ -66,13 +65,13 @@
                           class="pa-3"
                 >
                     <v-flex xs6>
-                        <v-btn>
+                        <v-btn @click="playFile()">
                             <v-icon class="mr-2">tv</v-icon>
                             Pi
                         </v-btn>
                     </v-flex>
                     <v-flex xs6>
-                        <v-btn>
+                        <v-btn @click="streamFile()">
                             <v-icon>smartphone</v-icon>
                             Device
                         </v-btn>
@@ -97,7 +96,8 @@
         pathHistory: ['/'],
         folders: [],
         files: [],
-        selectDestination: false
+        selectDestination: false,
+        selectedFile: null
       }
     },
     created() {
@@ -131,18 +131,28 @@
         this.selectFolder({fullPath: this.pathHistory[this.pathHistory.length - 1]}, false)
         console.log('Going to,', this.pathHistory[this.pathHistory.length - 1])
       },
-      playFile(file) {
-        let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + file.name).toString('base64')
+      playFile() {
+        let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
         if (this.pathHistory.length === 1) {
-          filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + file.name).toString('base64')
+          filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
         }
         this.$piApi.get(`/play/${filePath}`).then(response => {
+          console.log('Playing', this.selectedFile.name)
+          this.$store.dispatch('setTitle', this.selectedFile.name)
           this.$store.dispatch('setPlaying')
           console.log(response.data)
         })
       },
-      selectFile() {
+      streamFile() {
+        let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
+        if (this.pathHistory.length === 1) {
+          filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
+        }
+        this.$router.push(`/player/${filePath}`)
+      },
+      selectFile(file) {
         this.selectDestination = true
+        this.selectedFile = file
       }
 
     }

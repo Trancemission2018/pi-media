@@ -7,15 +7,19 @@ const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
 
+const SQL = require('sql-template-strings')
+const sqlite = require('sqlite')
+
+const dbLocation = './data/database.db'
+
 const MPlayer = require('mplayer')
 const player = new MPlayer()
 
-var Transmission = require('transmission')
-var transmission = new Transmission({
-  port: 9091,			// DEFAULT : 9091
-  //host: '192.168.1.34',			// DEAFULT : 127.0.0.1
-  username: 'marcus',	// DEFAULT : BLANK
-  password: 'password'	// DEFAULT : BLANK
+const Transmission = require('transmission')
+const transmission = new Transmission({
+  port: 9091,
+  username: 'marcus', // TODO move to config - possibly enviroment variables
+  password: 'password'
 })
 
 
@@ -79,12 +83,15 @@ app.get('/files', (req, res) => {
 
 
 app.get('/play/:filePath', (req, res) => {
+  console.log(req.params)
   let decodedPath = Buffer.from(req.params.filePath, 'base64').toString('ascii')
+  console.log('Playing', decodedPath)
   player.openFile(decodedPath)
   res.json({playing: true})
 })
 
 app.get('/pause', (req, res) => {
+  console.log('Pausing')
   player.pause()
   res.json({playing: false})
 })
@@ -106,7 +113,7 @@ app.post('/downloads/search', (req, res) => {
     let rows = html.match(/<tr>(.*?)<\/tr>/g)
 
     if (!rows) {
-      res.json({totalResults :0})
+      res.json({totalResults: 0})
       next()
     }
 
@@ -117,7 +124,7 @@ app.post('/downloads/search', (req, res) => {
       if (done < 15) {
 
         let links = row.match(/<a.*?>(.*?)<\/a>/g)
-        let titleA = links[2]
+        let titleA = links[2] // TODO refactore this
         let torrentA = links[3]
 
         let name = titleA.match(/>(.*?)</)[1]
@@ -145,9 +152,41 @@ app.post('/downloads/search', (req, res) => {
   })
 
 })
+app.get('/database/playlist', (req, res) => {
 
-app.get('/player', function(req, res) {
-  const path = '/data/media/movies/Hot Fuzz (2007)/Hot.Fuzz.mp4'
+  res.json({done: 1})
+})
+
+app.get('/playlist/play', (req, res) => {
+  var writer = require('m3u').writer();
+
+// A comment.
+  writer.comment('I am a comment');
+
+// An empty line.
+  writer.write(); // blank line
+
+// A playlist item, usually a path or url.
+  writer.file('foo.mp3');
+
+  console.log(writer.toString());
+
+  res.json({playlist: writer.toString()})
+})
+
+app.get('/playlists', async (req, res) => {
+  const db = await sqlite.open(dbLocation)
+  try {
+    const data = await db.all(SQL`SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id`)
+    res.json(data)
+  } catch(e) {
+    res.status(503).json({error:e})
+    db.close()
+  }
+})
+
+app.get('/player/:path', function (req, res) {
+  let path = Buffer.from(req.params.path, 'base64').toString('ascii')
   const stat = fs.statSync(path)
   const fileSize = stat.size
   const range = req.headers.range
@@ -157,9 +196,9 @@ app.get('/player', function(req, res) {
     const start = parseInt(parts[0], 10)
     const end = parts[1]
         ? parseInt(parts[1], 10)
-        : fileSize-1
+        : fileSize - 1
 
-    const chunksize = (end-start)+1
+    const chunksize = (end - start) + 1
     const file = fs.createReadStream(path, {start, end})
     const head = {
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -259,7 +298,7 @@ app.post('/downloads/youtube/title', (req, res) => {
     if (error) {
       res.status(503).json({error})
       console.log(error)
-    }else{
+    } else {
       res.json({title: stdout})
     }
   })
@@ -286,10 +325,10 @@ app.post('/folder/create', (req, res) => {
     console.log('Creating folder, need to add root', newDir)
     dir = newDir
   }
-  if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
     res.json({created: true})
-  }else{
+  } else {
     res.status(403).json({created: false, error: 'folder exists'})
   }
 })

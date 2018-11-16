@@ -37,7 +37,7 @@ export default new Router({
       component: Downloads
     },
     {
-      path: '/player',
+      path: '/player/:filePath',
       name: 'MediaPlayer',
       component: MediaPlayer
 

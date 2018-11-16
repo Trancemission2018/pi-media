@@ -44,7 +44,7 @@
             </router-view>
             <!-- <v-btn @click="showPlayer = !showPlayer">Player</v-btn> -->
         </v-content>
-        <v-bottom-sheet inset hide-overlay :value="$store.state.mplayer.status === 'playing'">
+        <v-bottom-sheet persistent inset hide-overlay :value="$store.state.mplayer.status !== 'stopped'">
 
             <v-card tile>
                 <v-progress-linear
@@ -55,8 +55,7 @@
                 <v-list>
                     <v-list-tile>
                         <v-list-tile-content>
-                            <v-list-tile-title>The Walker</v-list-tile-title>
-                            <v-list-tile-sub-title>Fitz & The Trantrums</v-list-tile-sub-title>
+                            <v-list-tile-title>{{$store.state.mplayer.currentTitle}}</v-list-tile-title>
                         </v-list-tile-content>
 
                         <v-spacer></v-spacer>

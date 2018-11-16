@@ -20,17 +20,22 @@
       return {
         playerOptions: {
           // videojs options
-          muted: true,
+          muted: false,
+          autoplay: true,
           fluid:true,
           controls:true,
           language: 'en',
           playbackRates: [0.7, 1.0, 1.5, 2.0],
           sources: [{
             type: "video/mp4",
-            src: "http://192.168.0.10:9001/player"
+            src: `http://10.0.0.165:9001/player/${this.$route.params.filePath}`
           }],
-          poster: "/static/images/author.jpg",
         }
+      }
+    },
+    computed: {
+      src() {
+        return `http://10.0.0.165:9001/player/${this.$route.params.filePath}`
       }
     }
   }

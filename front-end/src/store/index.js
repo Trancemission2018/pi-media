@@ -5,12 +5,16 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     mplayer: {
-      status: 'stopped'
+      status: 'stopped',
+      currentTitle: ''
     }
   },
   mutations: {
     setPlaying (state) {
       state.mplayer.status = 'playing'
+    },
+    setTitle (state, title) {
+      state.mplayer.currentTitle = title
     },
     setPaused (state) {
       state.mplayer.status = 'paused'
@@ -22,6 +26,10 @@ export default new Vuex.Store({
   actions: {
     setPlaying (context) {
       context.commit('setPlaying')
+    },
+    setTitle (context, title) {
+      console.log('Setting title')
+      context.commit('setTitle', title)
     },
     setPaused (context) {
       context.commit('setPaused')

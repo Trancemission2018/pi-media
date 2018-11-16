@@ -5,9 +5,14 @@
     "cheerio": "^1.0.0-rc.2",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "m3u": "^0.0.2",
     "mplayer": "^2.1.0",
+    "sql-template-strings": "^2.2.2",
+    "sqlite": "^3.0.0",
+    "sqlite3": "^4.0.4",
     "table-scraper": "^0.1.0",
     "tabletojson": "^0.9.8",
-    "thepiratebay": "^1.4.7"
+    "thepiratebay": "^1.4.7",
+    "transmission": "^0.4.9"
   }
 }
