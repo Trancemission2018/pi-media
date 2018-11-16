@@ -77,15 +77,7 @@
 
 <script>
 
-  import axios from 'axios'
   import FolderSelect from "./FolderSelect"
-
-  // const apiBase = 'http://192.168.0.10:9001'
-  const apiBase = 'http://10.0.0.165:9001'
-
-  const piApi = axios.create({
-    baseURL: apiBase
-  })
 
   export default {
     name: "download",
@@ -115,7 +107,7 @@
         } else {
           this.noResults = false
           this.searching = true
-          piApi.post('/downloads/search', {query: this.query}).then(response => {
+          this.$piApi.post('/downloads/search', {query: this.query}).then(response => {
             console.log('Here are the results', response.data)
             this.searchResults = response.data.results
             if (this.searchResults === 0) {
@@ -136,7 +128,7 @@
       download(folder) {
         console.log('Download to folder', folder)
         this.statusColour = 'green'
-        piApi.post('/downloads/download', {...this.currentTorrent, folder: folder}).then(response => {
+        this.$piApi.post('/downloads/download', {...this.currentTorrent, folder: folder}).then(response => {
           this.status = 'Download added...'
           this.showStatus = true
           this.preparingDownload = false

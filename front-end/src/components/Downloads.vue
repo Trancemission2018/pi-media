@@ -35,13 +35,6 @@
 
 <script>
 
-  import axios from 'axios'
-
-  const apiBase = 'http://10.0.0.165:9001'
-  const piApi = axios.create({
-    baseURL: apiBase
-  })
-
   export default {
     name: "down",
     components: {},
@@ -57,7 +50,7 @@
     },
     methods: {
       loadTorrentStatus() {
-        piApi.get('/downloads/status').then(response => {
+        this.$piApi.get('/downloads/status').then(response => {
           this.torrents = response.data.torrents
           console.log('Status response', response)
         }).catch(error => {

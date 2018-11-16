@@ -59,15 +59,7 @@
 
 <script>
 
-  import axios from 'axios'
   import FolderSelectYoutube from "./FolderSelectYouTube"
-
-  // const apiBase = 'http://192.168.0.10:9001'
-  const apiBase = 'http://10.0.0.165:9001'
-
-  const piApi = axios.create({
-    baseURL: apiBase
-  })
 
   export default {
     name: "download",
@@ -91,7 +83,7 @@
         console.log('Starting download')
         console.log('We would like to download', this.youtubeURL)
         console.log('We should have a folder', folder)
-        piApi.post('/downloads/youtube', {url: this.youtubeURL, folder}).then(response => {
+        this.$piApi.post('/downloads/youtube', {url: this.youtubeURL, folder}).then(response => {
           this.status = 'Download added...'
           this.showStatus = true
           console.log('Download response:', response)
@@ -107,7 +99,7 @@
           alert('Please enter a URL or ID')
         } else {
           this.searching=true
-          piApi.post('/downloads/youtube/title', {url: this.youtubeURL}).then((response) => {
+          this.$piApi.post('/downloads/youtube/title', {url: this.youtubeURL}).then((response) => {
             this.title = response.data.title
             this.preparingDownload = true
           }).catch(error => {

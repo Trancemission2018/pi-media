@@ -7,6 +7,16 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import store from './store'
 
+import axios from 'axios'
+
+Vue.use({
+  install (Vue) {
+    Vue.prototype.$piApi = axios.create({
+      baseURL: 'http://10.0.0.165:9001'
+    })
+  }
+})
+
 import VueVideoPlayer from 'vue-video-player'
 
 // require videojs style

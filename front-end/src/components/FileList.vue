@@ -87,15 +87,6 @@
 
 <script>
 
-  import axios from 'axios'
-
-  // const apiBase = 'http://192.168.0.10:9001'
-  const apiBase = 'http://10.0.0.165:9001'
-
-  const piApi = axios.create({
-    baseURL: apiBase
-  })
-
   export default {
     name: "file-list",
     components: {},
@@ -120,7 +111,7 @@
         if (folder) {
           pathLink = `?folder=${folder}`
         }
-        piApi.get(`/files${pathLink}`).then(response => {
+        this.$piApi.get(`/files${pathLink}`).then(response => {
           console.log(response.data)
           this.folders = response.data.folders
           this.files = response.data.files
@@ -145,7 +136,7 @@
         if (this.pathHistory.length === 1) {
           filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + file.name).toString('base64')
         }
-        piApi.get(`/play/${filePath}`).then(response => {
+        this.$piApi.get(`/play/${filePath}`).then(response => {
           this.$store.dispatch('setPlaying')
           console.log(response.data)
         })

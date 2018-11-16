@@ -50,15 +50,6 @@
 
 <script>
 
-  import axios from 'axios'
-
-  // const apiBase = 'http://192.168.0.10:9001'
-  const apiBase = 'http://10.0.0.165:9001'
-
-  const piApi = axios.create({
-    baseURL: apiBase
-  })
-
   export default {
     name: "folder-select-youtube",
     components: {},
@@ -103,7 +94,7 @@
         if (folder) {
           pathLink = `?folder=${folder}`
         }
-        piApi.get(`/files${pathLink}`).then(response => {
+        this.$piApi.get(`/files${pathLink}`).then(response => {
           console.log('Done', response)
           this.folders = response.data.folders
           this.files = response.data.files
@@ -141,7 +132,7 @@
             fullName = folderName
           }
           console.log('Saving ful', fullName)
-          piApi.post('/folder/create', {folder: fullName}).then(response => {
+          this.$piApi.post('/folder/create', {folder: fullName}).then(response => {
             console.log('Selecting folder', fullName)
             this.loadPath(fullName)
             this.currentPath = fullName
