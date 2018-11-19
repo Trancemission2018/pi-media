@@ -8,7 +8,7 @@
                 <v-flex xs8>
 
                     <v-text-field
-                            label="Download Web Link"
+                            label="Paste Link"
                             placeholder="Youtube, Soundcloud, IPlayer"
                             v-model="youtubeURL"
                     ></v-text-field>

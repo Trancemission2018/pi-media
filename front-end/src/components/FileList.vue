@@ -107,6 +107,8 @@
 
 <script>
 
+  import {EventBus} from '../bus/EventBus'
+
   export default {
     name: "file-list",
     components: {},
@@ -125,9 +127,7 @@
       }
     },
     created() {
-
       this.loadPath()
-
     },
     methods: {
       loadPath(folder) {
@@ -165,14 +165,22 @@
           this.$store.dispatch('setTitle', this.selectedFile.name)
           this.$store.dispatch('setPlaying')
           console.log(response.data)
-        })
+        }).finally(() => this.selectDestination = false)
       },
       streamFile() {
+
+        let ext = this.selectedFile.name.split('.').pop()
         let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
         if (this.pathHistory.length === 1) {
           filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
         }
-        this.$router.push(`/player/${filePath}`)
+        this.$store.dispatch('showVideoPlayer')
+        EventBus.$emit('play-video', {filePath, ext})
+        this.selectDestination = false
+        /*
+        console.log('Setting file path', filePath)
+        this.$store.dispatch('setStream', filePath)
+        */
       },
       selectFile(file) {
         this.getPlaylists()

@@ -12,7 +12,7 @@ import axios from 'axios'
 Vue.use({
   install (Vue) {
     Vue.prototype.$piApi = axios.create({
-      baseURL: 'http://10.0.0.165:9001'
+      baseURL: 'http://192.168.0.10:9001'
     })
   }
 })
