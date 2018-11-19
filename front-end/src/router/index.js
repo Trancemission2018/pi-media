@@ -15,6 +15,10 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
+      path: '/',
+      redirect: '/media'
+    },
+    {
       path: '/media',
       name: 'Media',
       component: Media

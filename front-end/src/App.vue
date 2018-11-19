@@ -44,76 +44,78 @@
             </router-view>
             <!-- <v-btn @click="showPlayer = !showPlayer">Player</v-btn> -->
         </v-content>
+        <v-bottom-sheet persistent inset hide-overlay :value="$store.state.showVideoPlayer">
+            <media-player :src="$store.state.mplayer.currentStream"></media-player>
+        </v-bottom-sheet>
         <v-bottom-sheet persistent inset hide-overlay :value="$store.state.mplayer.status !== 'stopped'">
 
-            <v-card tile>
-                <v-progress-linear
-                        :value="50"
-                        class="my-0"
-                        height="3"
-                ></v-progress-linear>
-                <v-list>
-                    <v-list-tile>
-                        <v-list-tile-content>
-                            <v-list-tile-title>{{$store.state.mplayer.currentTitle}}</v-list-tile-title>
-                        </v-list-tile-content>
+            <v-progress-linear
+                    :value="50"
+                    class="my-0"
+                    height="3"
+            ></v-progress-linear>
+            <v-list>
+                <v-list-tile>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{$store.state.mplayer.currentTitle}}</v-list-tile-title>
+                    </v-list-tile-content>
 
-                        <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
 
-                        <!--
-                        <v-list-tile-action>
-                            <v-btn icon>
-                                <v-icon>fast_rewind</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
-                        -->
+                    <!--
+                    <v-list-tile-action>
+                        <v-btn icon>
+                            <v-icon>fast_rewind</v-icon>
+                        </v-btn>
+                    </v-list-tile-action>
+                    -->
 
 
-                        <v-list-tile-action
-                                v-if="$store.state.mplayer.status==='playing'"
-                                :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
-                                @click="pause"
-                        >
-                            <v-btn icon>
-                                <v-icon>pause</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
+                    <v-list-tile-action
+                            v-if="$store.state.mplayer.status==='playing'"
+                            :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
+                            @click="pause"
+                    >
+                        <v-btn icon>
+                            <v-icon>pause</v-icon>
+                        </v-btn>
+                    </v-list-tile-action>
 
-                        <v-list-tile-action
-                                v-else-if="$store.state.mplayer.status==='paused'"
-                                :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
-                                @click="play"
-                        >
-                            <v-btn icon>
-                                <v-icon>play_arrow</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
+                    <v-list-tile-action
+                            v-else-if="$store.state.mplayer.status==='paused'"
+                            :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
+                            @click="play"
+                    >
+                        <v-btn icon>
+                            <v-icon>play_arrow</v-icon>
+                        </v-btn>
+                    </v-list-tile-action>
 
-                        <v-list-tile-action
-                                v-else
-                                :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
-                                @click="stop"
-                        >
-                            <v-btn icon>
-                                <v-icon>stop</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
-                        <!--
-                        <v-list-tile-action :class="{ 'mr-3': $vuetify.breakpoint.mdAndUp }">
-                            <v-btn icon>
-                                <v-icon>fast_forward</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
-                        -->
-                    </v-list-tile>
-                </v-list>
-            </v-card>
+                    <v-list-tile-action
+                            v-else
+                            :class="{ 'mx-5': $vuetify.breakpoint.mdAndUp }"
+                            @click="stop"
+                    >
+                        <v-btn icon>
+                            <v-icon>stop</v-icon>
+                        </v-btn>
+                    </v-list-tile-action>
+                    <!--
+                    <v-list-tile-action :class="{ 'mr-3': $vuetify.breakpoint.mdAndUp }">
+                        <v-btn icon>
+                            <v-icon>fast_forward</v-icon>
+                        </v-btn>
+                    </v-list-tile-action>
+                    -->
+                </v-list-tile>
+            </v-list>
         </v-bottom-sheet>
     </v-app>
 </template>
 
 <script>
   import axios from 'axios'
+  import MediaPlayer from "./components/MediaPlayer"
   // const apiBase = 'http://192.168.0.10:9001'
   const apiBase = 'http://localhost:9001'
 
@@ -122,6 +124,7 @@
   })
   export default {
     name: 'App',
+    components: {MediaPlayer},
     data: () => ({
       drawer: null,
       showPlayer: false,
@@ -130,7 +133,6 @@
         {icon: 'search', text: 'Search Torrents', link: '/download'},
         {icon: 'cloud_download', text: 'Download WebLink', link: '/youtube'},
         {icon: 'list', text: 'View Downloads', link: '/downloads'},
-        {icon: 'tv', text: 'Media Player', link: '/player'},
       ],
     }),
     props: {

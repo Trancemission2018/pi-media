@@ -186,6 +186,7 @@ app.get('/playlists', async (req, res) => {
 })
 
 app.get('/player/:path', function (req, res) {
+  console.log('Plying')
   let path = Buffer.from(req.params.path, 'base64').toString('ascii')
   const stat = fs.statSync(path)
   const fileSize = stat.size
@@ -294,7 +295,7 @@ app.post('/downloads/youtube/title', (req, res) => {
   let url = req.body.url
 
   const {execFile} = require('child_process')
-  const child = execFile('youtube-dl', [url, '-e'], (error, stdout, stderr) => {
+  const child = execFile('/usr/bin/python3.6', ['/usr/local/bin/youtube-dl', url, '-e'], (error, stdout, stderr) => {
     if (error) {
       res.status(503).json({error})
       console.log(error)
@@ -310,8 +311,9 @@ app.post('/downloads/youtube', (req, res) => {
   let folder = req.body.folder
 
   const {execFile} = require('child_process')
-  const child = execFile('youtube-dl', [url, '-o', `${folder}/%(title)s.%(ext)s`], (error, stdout, stderr) => {
+  const child = execFile('/usr/bin/python3.6', ['/usr/local/bin/youtube-dl', url, '-o', `${folder}/%(title)s.%(ext)s`], (error, stdout, stderr) => {
     if (error) {
+
       console.log(error)
     }
   })

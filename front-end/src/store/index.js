@@ -4,9 +4,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    showVideoPlayer: false,
     mplayer: {
       status: 'stopped',
-      currentTitle: ''
+      currentTitle: '',
+      currentStream: null
     }
   },
   mutations: {
@@ -22,6 +24,9 @@ export default new Vuex.Store({
     setStopped (state) {
       state.mplayer.status = 'stopped'
     },
+    showVideoPlayer (state) {
+      state.showVideoPlayer = true
+    },
   },
   actions: {
     setPlaying (context) {
@@ -36,6 +41,9 @@ export default new Vuex.Store({
     },
     setStopped (context) {
       context.commit('setStopped')
+    },
+    showVideoPlayer (context) {
+      context.commit('showVideoPlayer')
     },
   }
 })

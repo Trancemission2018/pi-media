@@ -8,7 +8,7 @@
 
                 <v-text-field
                         label="Search"
-                        placeholder="Paddington"
+                        placeholder=""
                         v-model="query"
                 ></v-text-field>
             </v-flex>
