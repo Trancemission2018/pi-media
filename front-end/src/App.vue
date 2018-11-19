@@ -129,9 +129,9 @@
       drawer: null,
       showPlayer: false,
       menu: [
-        {icon: 'folder', text: 'Files', link: '/media'},
+        {icon: 'folder', text: 'Media Browser', link: '/media'},
         {icon: 'search', text: 'Search Torrents', link: '/download'},
-        {icon: 'cloud_download', text: 'Download WebLink', link: '/youtube'},
+        {icon: 'cloud_download', text: 'Download From Web', link: '/youtube'},
         {icon: 'check', text: 'View Downloads', link: '/downloads'},
         {icon: 'list', text: 'PlayLists', link: '/playlists'},
 

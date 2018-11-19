@@ -228,7 +228,7 @@ app.get('/playlists', async (req, res) => {
   const db = await sqlite.open(dbLocation)
   try {
     // const data = await db.all(`SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id`)
-    const data = await db.all(`SELECT * from playlists`)
+    const data = await db.all(`SELECT * from playlists order by name ASC`)
     db.close()
     let results = []
     data.forEach(playlist => {

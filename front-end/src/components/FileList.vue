@@ -175,7 +175,7 @@
           filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
         }
         this.$store.dispatch('showVideoPlayer')
-        EventBus.$emit('play-video', {filePath, ext})
+        EventBus.$emit('play-video', {filePath, ext, name: this.selectedFile.name })
         this.selectDestination = false
         /*
         console.log('Setting file path', filePath)
