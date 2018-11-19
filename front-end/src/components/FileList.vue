@@ -58,10 +58,31 @@
         >
             <div
                     color="white"
+                    class="playModal"
             >
 
-                <v-layout row align-center text-xs-center
+                <v-layout row align-center
+                          class="pa-3"
+                >
+                    <v-flex xs10>
+                        <v-select
+                                :items="playLists"
+                                v-model="selectedPlayList"
+                                label="Playlist"
+                                dark
+                        ></v-select>
 
+                    </v-flex>
+                    <v-flex xs2 class="text-xs-center">
+                        <v-icon
+                                color="white"
+                                @click="addToPlaylist()"
+                                ripple
+                        >add</v-icon>
+                        </v-flex>
+                </v-layout>
+
+                <v-layout row align-center text-xs-center
                           class="pa-3"
                 >
                     <v-flex xs6>
@@ -99,7 +120,10 @@
         folders: [],
         files: [],
         selectDestination: false,
-        selectedFile: null
+        selectedFile: null,
+        selectedPlayList: 0,
+        playLists: [
+        ]
       }
     },
     created() {
@@ -159,15 +183,46 @@
         */
       },
       selectFile(file) {
+        this.getPlaylists()
         this.selectDestination = true
         this.selectedFile = file
-      }
+      },
+      getPlaylists() {
+        this.$piApi.get('/playlists').then(response => {
+          this.playLists = response.data
+        }).catch(error => {
+          console.error(error)
+        })
 
+      },
+      addToPlaylist() {
+        console.log('Add file to playlist', this.selectedFile, this.selectedPlayList)
+        let filePath = Buffer.from(this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
+        if (this.pathHistory.length === 1) {
+          filePath = Buffer.from('/data/media/' + this.pathHistory[this.pathHistory.length - 1] + '/' + this.selectedFile.name).toString('base64')
+        }
+        let playListEntry = {
+          title: this.selectedFile.name,
+          encodedPath: filePath
+        }
+        this.$piApi.post('/playlist/file', {playlist_id: this.selectedPlayList, title: this.selectedFile.name, file: filePath}).then(response => {
+          this.selectDestination = false
+          console.log('Added to playlist')
+        }).catch(error => {
+          console.error(error)
+        })
+        console.log('Add file to playlist', playListEntry, this.selectedPlayList)
+      }
     }
   }
 </script>
 
 <style scoped>
+
+    .playModal {
+        background-color: #3e3e3e !important;
+
+    }
 
     .scrollList {
         display: block;

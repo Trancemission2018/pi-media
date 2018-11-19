@@ -132,7 +132,9 @@
         {icon: 'folder', text: 'Files', link: '/media'},
         {icon: 'search', text: 'Search Torrents', link: '/download'},
         {icon: 'cloud_download', text: 'Download WebLink', link: '/youtube'},
-        {icon: 'list', text: 'View Downloads', link: '/downloads'},
+        {icon: 'check', text: 'View Downloads', link: '/downloads'},
+        {icon: 'list', text: 'PlayLists', link: '/playlists'},
+
       ],
     }),
     props: {

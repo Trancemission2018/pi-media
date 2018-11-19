@@ -23,7 +23,6 @@ const transmission = new Transmission({
 })
 
 
-
 app.use(bodyParser.json())
 app.use(cors({credentials: true, origin: '*'}))
 app.use(cors())
@@ -46,8 +45,6 @@ app.get('/files', (req, res) => {
       fullPath = req.query.folder
     }
   }
-
-  console.log('Looking for', fullPath)
 
   fs.readdir(fullPath, ((err, currentFolder) => {
     if (err) {
@@ -83,15 +80,12 @@ app.get('/files', (req, res) => {
 
 
 app.get('/play/:filePath', (req, res) => {
-  console.log(req.params)
   let decodedPath = Buffer.from(req.params.filePath, 'base64').toString('ascii')
-  console.log('Playing', decodedPath)
   player.openFile(decodedPath)
   res.json({playing: true})
 })
 
 app.get('/pause', (req, res) => {
-  console.log('Pausing')
   player.pause()
   res.json({playing: false})
 })
@@ -158,29 +152,94 @@ app.get('/database/playlist', (req, res) => {
 })
 
 app.get('/playlist/play', (req, res) => {
-  var writer = require('m3u').writer();
+  var writer = require('m3u').writer()
 
 // A comment.
-  writer.comment('I am a comment');
+  writer.comment('I am a comment')
 
 // An empty line.
-  writer.write(); // blank line
+  writer.write() // blank line
 
 // A playlist item, usually a path or url.
-  writer.file('foo.mp3');
+  writer.file('foo.mp3')
 
-  console.log(writer.toString());
+  console.log(writer.toString())
 
   res.json({playlist: writer.toString()})
+})
+
+
+
+app.post('/playlist', async (req, res) => {
+
+  const db = await sqlite.open(dbLocation)
+
+  let sql = `INSERT INTO playlists (name) VALUES ('${req.body.playListName}')`
+  try {
+    const data = await db.run(sql)
+    db.close()
+    res.json(data)
+  } catch (e) {
+    res.status(503).json({error: e, sql})
+    db.close()
+  }
+})
+
+app.get('/playlist/:id', async (req, res) => {
+
+  const db = await sqlite.open(dbLocation)
+
+  let sql = `SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id where playlists.id = '${req.params.id}'`
+  try {
+    const data = await db.all(sql)
+    let result = {
+      name: data[0].name,
+      files: []
+    }
+    data.forEach(fileData => {
+      result.files.push({
+        id: fileData.id,
+        title: fileData.title,
+        file: fileData.file
+      })
+    })
+    res.json(result)
+    db.close()
+  } catch (e) {
+    res.status(503).json({error: e, sql})
+    db.close()
+  }
+})
+
+app.post('/playlist/file', async (req, res) => {
+  const db = await sqlite.open(dbLocation)
+
+  try {
+    const data = await db.run(`INSERT INTO playlist_files (playlist_id, title, file) VALUES ('${req.body.playlist_id}', '${req.body.title}', '${req.body.file}')`)
+    db.close()
+    res.json(data)
+  } catch (e) {
+    res.status(503).json({error: e, sql})
+    db.close()
+  }
 })
 
 app.get('/playlists', async (req, res) => {
   const db = await sqlite.open(dbLocation)
   try {
-    const data = await db.all(SQL`SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id`)
-    res.json(data)
-  } catch(e) {
-    res.status(503).json({error:e})
+    // const data = await db.all(`SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id`)
+    const data = await db.all(`SELECT * from playlists`)
+    db.close()
+    let results = []
+    data.forEach(playlist => {
+      results.push({
+        value: playlist.id,
+        text: playlist.name
+      })
+    })
+    res.json(results)
+  } catch (e) {
+    res.status(503).json({error: e})
     db.close()
   }
 })
