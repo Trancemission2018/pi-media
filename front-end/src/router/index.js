@@ -7,7 +7,8 @@ import DownloadYouTube from '../components/DownloadYouTube'
 import Downloads from '../components/Downloads'
 
 import Media from '../components/Media'
-import MediaPlayer from '../components/MediaPlayer'
+import PlayLists from '../components/PlayLists'
+import PlayList from '../components/PlayList'
 
 
 Vue.use(Router)
@@ -37,10 +38,14 @@ export default new Router({
       component: Downloads
     },
     {
-      path: '/player/:filePath',
-      name: 'MediaPlayer',
-      component: MediaPlayer
-
+      path: '/playlists',
+      name: 'PlayLists',
+      component: PlayLists
+    },
+    {
+      path: '/playlist/:playListId',
+      name: 'PlayList',
+      component: PlayList
     }
   ]
 })
