@@ -39,7 +39,7 @@
             ></folder-select>
         </div>
         <div v-else-if="noResults">
-            Tumbleweed
+            <strong>{{ query }}</strong>: No Results
         </div>
         <div v-else>
 
@@ -55,7 +55,7 @@
                     <v-list-tile-content>
                         <v-list-tile-title v-html="">{{result.name}}</v-list-tile-title>
                         <v-list-tile-sub-title
-                                v-html="`${result.meta}<br />${result.seeds} / ${result.leechers}`"></v-list-tile-sub-title>
+                                v-html="`${result.meta}<br />${result.seeds} / ${result.leechers} - {$result.meta}`"></v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
@@ -109,11 +109,10 @@
           this.searching = true
           this.$piApi.post('/downloads/search', {query: this.query}).then(response => {
             console.log('Here are the results', response.data)
-            this.searchResults = response.data.results
-            if (this.searchResults === 0) {
-              this.noResults = true
-            } else {
-              this.noResults = false
+            let totalResults = response.data.totalResults
+            this.noResults = totalResults === 0
+            if (totalResults > 0) {
+              this.searchResults = response.data.results
             }
           }).catch(error => {
             console.error(error)

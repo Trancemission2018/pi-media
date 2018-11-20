@@ -85,7 +85,7 @@
             this.currentType = 'video'
             this.showPlayer = true
         }
-        let srcUrl = `http://192.168.0.10:9001/player/${fileInfo.filePath}`
+        let srcUrl = `http://10.0.0.165:9001/player/${fileInfo.filePath}`
         this.playerOptions.sources = []
         this.playerOptions.sources.push({
           type: 'video/mp4',

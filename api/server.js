@@ -103,8 +103,9 @@ app.post('/downloads/search', (req, res) => {
   axios.get(`https://pirateproxy.live/search/${query}/1/99/0`).then(response => {
 
     let html = response.data.replace(/(\r\n\t|\n|\r\t|\r)/gm, "")
-
     let rows = html.match(/<tr>(.*?)<\/tr>/g)
+
+    let  results = []
 
     if (!rows) {
       res.json({totalResults: 0})
@@ -112,8 +113,8 @@ app.post('/downloads/search', (req, res) => {
     }
 
 
-    let results = []
     let done = 0
+
     rows.forEach(row => {
       if (done < 15) {
 
@@ -128,10 +129,11 @@ app.post('/downloads/search', (req, res) => {
         let seeds = peersMatch[0].match(/>(.*?)</)[1]
         let leechers = peersMatch[1].match(/>(.*?)</)[1]
 
+
+
         let meta = row.match(/<font class="detDesc">(.*?), ULed/)[1]
 
         results.push({
-          totalResults: 1,
           name,
           meta,
           seeds,
@@ -142,7 +144,10 @@ app.post('/downloads/search', (req, res) => {
       }
     })
 
-    res.json({results})
+    res.json({
+      totalResults: rows.length,
+      results
+    })
   })
 
 })
