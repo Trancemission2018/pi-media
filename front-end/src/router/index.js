@@ -9,6 +9,7 @@ import Downloads from '../components/Downloads'
 import Media from '../components/Media'
 import PlayLists from '../components/PlayLists'
 import PlayList from '../components/PlayList'
+import PlayListCurrent from '../components/PlayListCurrent'
 
 
 Vue.use(Router)
@@ -45,6 +46,11 @@ export default new Router({
       path: '/playlists',
       name: 'PlayLists',
       component: PlayLists
+    },
+    {
+      path: '/playlist/current',
+      name: 'Current Playlist',
+      component: PlayListCurrent
     },
     {
       path: '/playlist/:playListId',

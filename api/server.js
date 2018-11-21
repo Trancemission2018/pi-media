@@ -199,10 +199,14 @@ app.get('/playlist/:id', async (req, res) => {
 
   const db = await sqlite.open(dbLocation)
 
+  console.log('fetching playlist', req.params)
+
   let sql = `SELECT * FROM playlists LEFT JOIN playlist_files ON playlists.id = playlist_files.playlist_id WHERE playlists.id = '${req.params.id}'`
   try {
     const data = await db.all(sql)
+    console.log('And the result', data)
     let result = {
+      id: data[0].id,
       name: data[0].name,
       files: []
     }
@@ -259,6 +263,7 @@ app.get('/playlists', async (req, res) => {
 app.get('/player/:path', function (req, res) {
   console.log('Plying')
   let path = Buffer.from(req.params.path, 'base64').toString('ascii')
+  console.log(path)
   const stat = fs.statSync(path)
   const fileSize = stat.size
   const range = req.headers.range

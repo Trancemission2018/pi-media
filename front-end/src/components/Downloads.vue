@@ -52,7 +52,8 @@
       return {
         torrents: [],
         showStatus: false,
-        piStatus: 0
+        piStatus: 0,
+        status: ''
       }
     },
     created() {

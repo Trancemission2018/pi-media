@@ -61,8 +61,7 @@
     },
     methods: {
       loadPlayList() {
-        this.$piApi.get(`/playlist/${this.$route.params.playListId}`).then(response => {
-          console.log('Setting playlist', response.data)
+        this.$piApi.get(`/playlist/${this.$store.state.mplayer.playlist.id}`).then(response => {
           this.playList = response.data
         }).catch(error => {
           console.error(error)
@@ -75,9 +74,7 @@
       playPlayList(playlist) {
         console.log('Playlist', playlist)
         this.$store.dispatch('playPlayList', playlist).then(() => {
-          console.log('Emitting')
           EventBus.$emit('play-playlist')
-
         })
       }
     }

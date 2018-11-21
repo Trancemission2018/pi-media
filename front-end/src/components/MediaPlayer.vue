@@ -42,7 +42,9 @@
     data() {
       return {
         showPlayer: true,
-        currentFile:'',
+        currentFile: {
+          name: ''
+        },
         currentType: '',
         currentHeight: 40,
         playerOptions: {
@@ -70,6 +72,31 @@
     },
     mounted() {
       EventBus.$on('play-video', fileInfo => {
+        this.playFile(fileInfo)
+      })
+      EventBus.$on('play-playlist', () => {
+        if (!this.$store.state.mplayer.playlist.currentIndex) {
+          this.$store.dispatch('setPlayListPosition', 0).then(() => {
+            console.log('Please play', this.$store.state.mplayer.playlist)
+            console.log('Playing', this.$store.state.mplayer.playlist.files[this.$store.state.mplayer.playlist.currentIndex])
+            let fileInfo = {
+              ext: 'mp4',
+              filePath: this.$store.state.mplayer.playlist.files[this.$store.state.mplayer.playlist.currentIndex].file,
+              name: this.$store.state.mplayer.playlist.files[this.$store.state.mplayer.playlist.currentIndex].title
+            }
+            this.playFile(fileInfo)
+          })
+        }
+      })
+    },
+    methods: {
+      hide() {
+        this.showPlayer = !this.showPlayer
+      },
+      updateTime(event){
+         this.playerEvent = event.controlBar.currentTimeDisplay.formattedTime_
+      },
+      playFile(fileInfo) {
 
         this.currentFile = fileInfo
 
@@ -85,21 +112,14 @@
             this.currentType = 'video'
             this.showPlayer = true
         }
+        console.log('Sending playfile', fileInfo)
         let srcUrl = `http://10.0.0.165:9001/player/${fileInfo.filePath}`
         this.playerOptions.sources = []
         this.playerOptions.sources.push({
           type: 'video/mp4',
           src: srcUrl
         })
-      })
-    },
-    methods: {
-      hide() {
-        this.showPlayer = !this.showPlayer
-      },
-      updateTime(event){
-        console.log('Time update', event)
-         this.playerEvent = event.controlBar.currentTimeDisplay.formattedTime_
+
       }
     },
     watch: {}
