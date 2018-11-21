@@ -1,4 +1,5 @@
 .DS_Store
+api/data/
 node_modules/
 /dist/
 npm-debug.log*
