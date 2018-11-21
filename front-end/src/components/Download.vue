@@ -101,23 +101,23 @@
     },
     methods: {
       search() {
-        if (this.query === '') {
-          alert('Please enter a search term')
-
-        } else {
-          this.noResults = false
-          this.searching = true
-          this.$piApi.post('/downloads/search', {query: this.query}).then(response => {
-            console.log('Here are the results', response.data)
-            let totalResults = response.data.totalResults
-            this.noResults = totalResults === 0
-            if (totalResults > 0) {
-              this.searchResults = response.data.results
-            }
-          }).catch(error => {
-            console.error(error)
-          }).finally(() => this.searching = false)
+        if (this.query === '' || this.query.length < 3) {
+          alert('Please enter a search term, at least 3 characters')
+          return
         }
+        this.noResults = false
+        this.searching = true
+        this.searchResults = []
+        this.$piApi.post('/downloads/search', {query: this.query}).then(response => {
+          console.log('Here are the results', response.data)
+          let totalResults = response.data.totalResults
+          this.noResults = totalResults === 0
+          if (totalResults > 0) {
+            this.searchResults = response.data.results
+          }
+        }).catch(error => {
+          console.error(error)
+        }).finally(() => this.searching = false)
       },
 
       prepareDownload(result) {

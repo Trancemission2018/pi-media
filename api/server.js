@@ -98,6 +98,8 @@ app.get('/resume', (req, res) => {
 
 app.post('/downloads/search', (req, res) => {
 
+  console.log('Searchnigf')
+
   let query = req.body.query
 
   axios.get(`https://pirateproxy.live/search/${query}/1/99/0`).then(response => {
@@ -105,7 +107,7 @@ app.post('/downloads/search', (req, res) => {
     let html = response.data.replace(/(\r\n\t|\n|\r\t|\r)/gm, "")
     let rows = html.match(/<tr>(.*?)<\/tr>/g)
 
-    let  results = []
+    let results = []
 
     if (!rows) {
       res.json({totalResults: 0})
@@ -123,24 +125,28 @@ app.post('/downloads/search', (req, res) => {
         let torrentA = links[3]
 
         let name = titleA.match(/>(.*?)</)[1]
-        let magnet = torrentA.match(/(magnet:.*?)"/)[1]
+        if (name) {
 
-        let peersMatch = row.match(/<td align="right">(.*?)</g)
-        let seeds = peersMatch[0].match(/>(.*?)</)[1]
-        let leechers = peersMatch[1].match(/>(.*?)</)[1]
+          let magnet = torrentA.match(/(magnet:.*?)"/)[1]
+
+          console.log('Here')
+
+          let peersMatch = row.match(/<td align="right">(.*?)</g)
+          let seeds = peersMatch[0].match(/>(.*?)</)[1]
+          let leechers = peersMatch[1].match(/>(.*?)</)[1]
 
 
+          let meta = row.match(/<font class="detDesc">(.*?), ULed/)[1]
 
-        let meta = row.match(/<font class="detDesc">(.*?), ULed/)[1]
-
-        results.push({
-          name,
-          meta,
-          seeds,
-          leechers,
-          magnet
-        })
-        done++
+          results.push({
+            name,
+            meta,
+            seeds,
+            leechers,
+            magnet
+          })
+          done++
+        }
       }
     })
 
@@ -174,7 +180,6 @@ app.get('/playlist/play', (req, res) => {
 })
 
 
-
 app.post('/playlist', async (req, res) => {
 
   const db = await sqlite.open(dbLocation)
@@ -194,7 +199,7 @@ app.get('/playlist/:id', async (req, res) => {
 
   const db = await sqlite.open(dbLocation)
 
-  let sql = `SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id where playlists.id = '${req.params.id}'`
+  let sql = `SELECT * FROM playlists LEFT JOIN playlist_files ON playlists.id = playlist_files.playlist_id WHERE playlists.id = '${req.params.id}'`
   try {
     const data = await db.all(sql)
     let result = {
@@ -233,7 +238,9 @@ app.get('/playlists', async (req, res) => {
   const db = await sqlite.open(dbLocation)
   try {
     // const data = await db.all(`SELECT * from playlists LEFT JOIN playlist_files on playlists.id = playlist_files.playlist_id`)
-    const data = await db.all(`SELECT * from playlists order by name ASC`)
+    const data = await db.all(`SELECT *
+                               FROM playlists
+                               ORDER BY name ASC`)
     db.close()
     let results = []
     data.forEach(playlist => {
